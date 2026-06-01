@@ -1,0 +1,836 @@
+
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Илья ✧ Лера | Наша история любви</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=Playfair+Display:wght@400;600;700;800&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      cursor: none;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0b0b2a;
+      overflow-x: hidden;
+      color: #f0f0ff;
+      scroll-behavior: smooth;
+    }
+
+    /* КАСТОМНЫЙ КУРСОР-СЕРДЕЧКО */
+    .custom-cursor {
+      position: fixed;
+      width: 32px;
+      height: 32px;
+      pointer-events: none;
+      z-index: 9999;
+      filter: drop-shadow(0 0 6px #ff66cc);
+      transition: transform 0.1s ease;
+      transform: translate(-50%, -50%);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff66cc'%3E%3Cpath d='M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5 2,5.41 4.42,3 7.5,3c1.74,0 3.41.81 4.5,2.08C13.09,3.81 14.76,3 16.5,3 19.58,3 22,5.41 22,8.5c0,3.77-3.4,6.86-8.55,11.54L12,21.35Z'/%3E%3C/svg%3E");
+      background-size: contain;
+      background-repeat: no-repeat;
+      opacity: 0.85;
+    }
+    .custom-cursor.hover-effect {
+      transform: translate(-50%, -50%) scale(1.3);
+      opacity: 1;
+      filter: drop-shadow(0 0 12px #ff66cc);
+    }
+
+    /* CANVAS (звездная пыль + сердечки) */
+    #particle-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Параллаксная сетка */
+    .grid-parallax {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        repeating-linear-gradient(transparent 0px, rgba(106, 13, 173, 0.25) 1px, transparent 2px, transparent 40px),
+        repeating-linear-gradient(90deg, transparent 0px, rgba(255, 102, 204, 0.2) 1px, transparent 2px, transparent 40px);
+      background-size: 60px 60px;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.5;
+      transition: transform 0.08s ease-out;
+      will-change: transform;
+    }
+
+    .content {
+      position: relative;
+      z-index: 10;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+      backdrop-filter: blur(1px);
+    }
+
+    .glass-card {
+      background: rgba(15, 15, 45, 0.55);
+      backdrop-filter: blur(14px);
+      border-radius: 2rem;
+      border: 1px solid rgba(255, 102, 204, 0.35);
+      box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 102, 204, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 2rem 2rem 1.5rem;
+      margin-bottom: 2rem;
+      animation: fadeInUp 1s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
+    }
+
+    .glitch-text {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: clamp(1.8rem, 8vw, 3.8rem);
+      background: linear-gradient(135deg, #ffffff, #ff99dd, #c084fc, #ff66cc);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 8px #ff66cc88, 0 0 18px #6a0dad;
+      letter-spacing: 2px;
+      position: relative;
+      display: inline-block;
+      animation: neonPulse 2s infinite alternate;
+    }
+
+    .glitch-text::before,
+    .glitch-text::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #ffffff, #ff99dd, #c084fc);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .glitch-text::before {
+      animation: glitch-offset 0.12s infinite linear alternate-reverse;
+      left: 2px;
+      text-shadow: -2px 0 #ff66cc;
+      clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+    }
+
+    .glitch-text::after {
+      animation: glitch-offset 0.09s infinite linear alternate-reverse;
+      left: -2px;
+      text-shadow: 2px 0 #6a0dad;
+      clip-path: polygon(0 80%, 100% 20%, 100% 100%, 0 100%);
+    }
+
+    @keyframes glitch-offset {
+      0% { transform: translate(0); }
+      100% { transform: translate(-1px, 1px); }
+    }
+
+    @keyframes neonPulse {
+      0% { text-shadow: 0 0 5px #ff66cc, 0 0 10px #6a0dad; }
+      100% { text-shadow: 0 0 18px #ff66cc, 0 0 28px #6a0dad, 0 0 35px #ff66cc; }
+    }
+
+    .names {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.2rem, 5vw, 2rem);
+      margin: 0.5rem 0 1rem;
+      background: linear-gradient(120deg, #f0e6ff, #ffb3e6);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    /* Блок выбора даты */
+    .date-picker {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      align-items: flex-end;
+      margin: 1rem 0;
+    }
+    .date-field {
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(5px);
+      border-radius: 2rem;
+      padding: 0.5rem 1rem;
+      border: 1px solid #ff66cc;
+    }
+    .date-field label {
+      display: block;
+      font-size: 0.7rem;
+      letter-spacing: 1px;
+      color: #ffb3e6;
+    }
+    .date-field input {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1rem;
+      padding: 0.3rem 0;
+      outline: none;
+      font-family: monospace;
+    }
+    .set-date-btn {
+      background: linear-gradient(95deg, #6a0dad, #b13b9e);
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 2rem;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .set-date-btn:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 12px #ff66cc;
+    }
+
+    /* Таймер */
+    .timer-container {
+      margin: 1rem auto;
+    }
+    .timer-box {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .time-unit {
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(8px);
+      border-radius: 1.5rem;
+      padding: 0.7rem 0.8rem;
+      min-width: 75px;
+      text-align: center;
+      border: 1px solid rgba(255, 102, 204, 0.6);
+      box-shadow: 0 0 12px rgba(255, 102, 204, 0.3);
+    }
+    .time-number {
+      font-size: clamp(1.6rem, 6vw, 2.5rem);
+      font-weight: 800;
+      font-family: 'Montserrat', monospace;
+      color: #ffffff;
+      text-shadow: 0 0 10px #ff66cc;
+    }
+    .time-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: #ffb3e6;
+    }
+
+    .love-message {
+      max-width: 700px;
+      margin: 2rem auto;
+      padding: 1.5rem;
+      font-size: 1.1rem;
+      text-align: center;
+      background: rgba(10, 8, 35, 0.65);
+      backdrop-filter: blur(12px);
+      border-radius: 2rem;
+      border-left: 4px solid #ff66cc;
+      border-right: 4px solid #6a0dad;
+    }
+
+    .secret-btn {
+      background: linear-gradient(95deg, #6a0dad, #b13b9e, #ff66cc);
+      border: none;
+      padding: 0.8rem 2rem;
+      font-size: 1.1rem;
+      border-radius: 3rem;
+      color: white;
+      cursor: pointer;
+      margin: 1rem 0;
+      box-shadow: 0 0 15px #ff66cc;
+    }
+
+   /* ----- КАРУСЕЛЬ ИЗОБРАЖЕНИЙ ----- */
+    .carousel-section {
+      margin: 3rem 0 2rem;
+    }
+
+    .section-title {
+      text-align: center;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.8rem;
+      margin-bottom: 2rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #ffb3e6, #bf7fff);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .carousel-container {
+      position: relative;
+      max-width: 800px;
+      margin: 0 auto;
+      background: rgba(10, 8, 35, 0.5);
+      backdrop-filter: blur(8px);
+      border-radius: 2rem;
+      padding: 1.2rem;
+      border: 1px solid rgba(255, 102, 204, 0.5);
+      box-shadow: 0 0 25px rgba(106, 13, 173, 0.3);
+    }
+
+    .carousel-inner {
+      overflow: hidden;
+      border-radius: 1.5rem;
+      position: relative;
+    }
+
+    .carousel-track {
+      display: flex;
+      transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      will-change: transform;
+    }
+
+    .carousel-slide {
+      flex: 0 0 100%;
+      position: relative;
+      aspect-ratio: 16 / 10;
+    }
+
+    .carousel-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 1rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,200,0.2);
+    }
+
+    .slide-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+      padding: 1rem 1rem 0.8rem;
+      text-align: center;
+      font-weight: 600;
+      color: #fff0f5;
+      text-shadow: 0 0 6px #ff66cc;
+      font-size: 1.1rem;
+      border-radius: 0 0 1rem 1rem;
+      backdrop-filter: blur(2px);
+    }
+
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+      border: 1px solid #ff66cc;
+      color: #ffb3e6;
+      font-size: 1.8rem;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      z-index: 20;
+    }
+
+    .carousel-btn:hover {
+      background: #ff66cc;
+      color: #0b0b2a;
+    }
+
+    .btn-prev { left: 10px; }
+    .btn-next { right: 10px; }
+
+    .carousel-dots {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 1.5rem;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      background: rgba(255, 102, 204, 0.5);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .dot.active {
+      background: #ff66cc;
+      box-shadow: 0 0 12px #ff66cc;
+      width: 24px;
+      border-radius: 10px;
+    }
+
+    /* Винил */
+    .vinyl-block { max-width: 500px; margin: 2rem auto; text-align: center; }
+    .vinyl-card { background: rgba(0,0,0,0.5); backdrop-filter: blur(15px); border-radius: 2rem; padding: 1.5rem; }
+    .vinyl-disc {
+      width: 100px; height: 100px; margin: 0 auto; background: radial-gradient(circle, #ff66cc, #6a0dad);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem;
+      cursor: pointer; animation: spinSlow 8s infinite linear;
+    }
+    @keyframes spinSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .vinyl-quote { margin-top: 1rem; font-style: italic; background: rgba(106,13,173,0.4); border-radius: 2rem; padding: 0.5rem; }
+
+    /* Стихи */
+    .poem-block { max-width: 600px; margin: 2rem auto; }
+    .poem-card { background: rgba(20,10,50,0.7); backdrop-filter: blur(12px); border-radius: 2rem; padding: 1.5rem; text-align: center; }
+    .poem-text { font-family: 'Playfair Display', serif; font-size: 1.1rem; white-space: pre-line; }
+
+    /* Оракул */
+    .oracle-block { max-width: 600px; margin: 2rem auto; cursor: pointer; }
+    .oracle-card { text-align: center; padding: 1.5rem; background: radial-gradient(circle, rgba(106,13,173,0.5), rgba(11,11,42,0.8)); border-radius: 3rem; border: 1px solid #ff66cc; }
+
+    /* Причины (динамические) */
+    .grid-romance { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; margin: 2rem 0; }
+    .card-reason { background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); border-radius: 1.5rem; padding: 0.8rem; border-left: 3px solid #ff66cc; }
+    .load-more { background: linear-gradient(95deg, #6a0dad, #ff66cc); border: none; padding: 0.5rem 1.5rem; border-radius: 2rem; color: white; cursor: pointer; margin: 1rem auto; display: inline-block; }
+
+    /* Сердечки */
+    .floating-heart { position: fixed; pointer-events: none; font-size: 1.5rem; z-index: 10000; animation: floatUp 1.5s ease-out forwards; }
+    @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(0.6); } 100% { opacity: 0; transform: translateY(-100px) scale(1.2); } }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(12px);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-card { background: rgba(25,12,55,0.95); border-radius: 2rem; padding: 2rem; text-align: center; border: 1px solid #ff66cc; max-width: 90%; }
+    .close-modal { background: #ff66cc; border: none; padding: 0.5rem 1rem; border-radius: 2rem; cursor: pointer; }
+
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+<div class="custom-cursor" id="customCursor"></div>
+<canvas id="particle-canvas"></canvas>
+<div class="grid-parallax" id="parallaxGrid"></div>
+
+<div class="content">
+  <div class="hero glass-card">
+    <h1 class="glitch-text" data-text="Наша история любви">Наша история любви</h1>
+    <div class="names">Илья ❤️ Лера</div>
+
+    <!-- Выбор даты начала отношений -->
+    <div class="date-picker">
+      <div class="date-field">
+        <label>📅 Дата начала</label>
+        <input type="date" id="startDateInput" value="2026-05-03">
+      </div>
+      <button class="set-date-btn" id="setDateBtn">✨ Установить дату ✨</button>
+    </div>
+
+    <!-- Таймер -->
+    <div class="timer-container">
+      <div class="timer-box" id="timerBox">
+        <div class="time-unit"><div class="time-number" id="days">00</div><div class="time-label">Дней</div></div>
+        <div class="time-unit"><div class="time-number" id="hours">00</div><div class="time-label">Часов</div></div>
+        <div class="time-unit"><div class="time-number" id="minutes">00</div><div class="time-label">Минут</div></div>
+        <div class="time-unit"><div class="time-number" id="seconds">00</div><div class="time-label">Секунд</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="love-message glass-card">
+    🌙 Лерочка, каждый миг с тобой — бесценен. Спасибо за эту любовь. Это только начало! 💜
+  </div>
+
+  <div style="text-align: center;">
+    <button class="secret-btn" id="secretButton">✨ Открой секрет ✨</button>
+  </div>
+
+  <!-- Карусель (локальные моменты) -->
+  <div class="carousel-container" style="position:relative; margin-bottom: 2rem;">
+    <div class="carousel-inner">
+      <div class="carousel-track" id="carouselTrack"></div>
+      <button class="carousel-btn btn-prev" id="prevBtn">❮</button>
+      <button class="carousel-btn btn-next" id="nextBtn">❯</button>
+    </div>
+    <div class="carousel-dots" id="carouselDots"></div>
+  </div>
+
+  <!-- Винил наших чувств -->
+  <div class="vinyl-block">
+    <div class="vinyl-card">
+      <div class="vinyl-disc" id="vinylDisc">🎵</div>
+      <div class="vinyl-title">Винил наших чувств</div>
+      <div class="vinyl-quote" id="vinylQuote">Коснись пластинки — услышишь мелодию моего сердца...</div>
+    </div>
+  </div>
+
+  <!-- Стихи от Ильи -->
+  <div class="poem-block">
+    <div class="poem-card">
+      <div class="heart-icon">💖</div>
+      <div class="poem-text" id="poemText">Ты — свет в моём космосе,<br>Неоновая мечта.<br>Каждый день с тобой —<br>Новая глава счастья.</div>
+      <button class="new-reason-btn" id="newPoemBtn" style="background:transparent; border:1px solid #ff66cc; padding:0.3rem 1rem; border-radius:2rem; margin-top:0.8rem; color:#ffb3e6; cursor:pointer;">✨ Новая строфа ✨</button>
+    </div>
+  </div>
+
+  <!-- Оракул -->
+  <div class="oracle-block" id="oracleBlock">
+    <div class="oracle-card">
+      <div class="oracle-icon">💖🔮</div>
+      <div class="oracle-title">Сердечный оракул</div>
+      <div class="oracle-text" id="oracleMessage">Коснись меня, и я открою тайну твоего сердца...</div>
+    </div>
+  </div>
+
+  <!-- 1000+ причин -->
+  <h2 style="text-align:center; margin-top:2rem;">💗 1000+ причин любить тебя 💗</h2>
+  <div id="reasonsGrid" class="grid-romance"></div>
+  <div style="text-align:center;">
+    <button class="load-more" id="loadMoreBtn">✨ Показать ещё 50 причин ✨</button>
+  </div>
+
+  <footer style="text-align:center; margin-top:3rem; opacity:0.7;">✨ бесконечность не предел, когда любовь реальна ✨</footer>
+</div>
+
+<div id="modal" class="modal">
+  <div class="modal-card">
+    <span style="font-size: 2rem;">💖</span>
+    <p style="font-size:1.3rem;">Лера, ты лучшая. Твой Илья</p>
+    <button class="close-modal">Закрыть магию</button>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ------ УПРАВЛЕНИЕ ДАТОЙ НАЧАЛА ОТНОШЕНИЙ (сохраняем в localStorage) ------
+    let startDate = null;
+    const startDateInput = document.getElementById('startDateInput');
+    const setDateBtn = document.getElementById('setDateBtn');
+
+    function loadStartDate() {
+      const saved = localStorage.getItem('loveStartDate');
+      if (saved) {
+        startDate = new Date(saved);
+        startDateInput.value = saved;
+      } else {
+        // по умолчанию 3 мая 2026
+        startDate = new Date(2026, 4, 3); // месяц 4 = май
+        startDateInput.value = '2026-05-03';
+      }
+    }
+    function saveStartDate(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const str = `${year}-${month}-${day}`;
+      localStorage.setItem('loveStartDate', str);
+      startDate = new Date(str);
+    }
+    setDateBtn.addEventListener('click', () => {
+      const newDateStr = startDateInput.value;
+      if (newDateStr) {
+        const parsed = new Date(newDateStr);
+        if (!isNaN(parsed)) {
+          saveStartDate(parsed);
+          updateTimerDisplay();
+          // небольшой эффект
+          for(let i=0;i<8;i++) createHeart(window.innerWidth/2, window.innerHeight/2);
+        }
+      }
+    });
+
+    // Таймер (обновление каждую секунду)
+    function getFormattedTimeDiff() {
+      if (!startDate) return { days:0, hours:0, minutes:0, seconds:0 };
+      const now = new Date();
+      let diffMs = now - startDate;
+      if (diffMs < 0) diffMs = 0;
+      const totalSeconds = Math.floor(diffMs / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      return { days, hours, minutes, seconds };
+    }
+    function updateTimerDisplay() {
+      const { days, hours, minutes, seconds } = getFormattedTimeDiff();
+      document.getElementById('days').innerText = days.toString().padStart(2,'0');
+      document.getElementById('hours').innerText = hours.toString().padStart(2,'0');
+      document.getElementById('minutes').innerText = minutes.toString().padStart(2,'0');
+      document.getElementById('seconds').innerText = seconds.toString().padStart(2,'0');
+    }
+    loadStartDate();
+    updateTimerDisplay();
+    setInterval(updateTimerDisplay, 1000);
+
+    // ------ ОСТАЛЬНЫЕ РОМАНТИЧЕСКИЕ ФИШКИ (карусель, винил, стихи, оракул, причины, частицы) ------
+    
+    // 1. Карусель с локальными эмодзи
+     const slides = [
+        { src:"https://sun9-14.userapi.com/s/v1/ig2/MzC5hkuEhfn0vo5I_P1LIimugSUh1gLmuyGg9Brlf7WRP5Me7OrIOHn3cz7N8E0dF9PyKB9dcDr8tu4IYm4enABu.jpg?quality=95&as=32x43,48x64,72x96,108x144,160x213,240x320,360x480,480x640,540x720,640x853,720x960,1080x1440,1280x1707,1440x1920,1920x2560&from=bu&u=6Tx_dZ_B8pgro9tZsO1yQSo8jamtZIuBlB29MORhEpM&cs=1280x0", cap:"это мы в автобусе" },
+        { src:"https://sun9-15.userapi.com/s/v1/ig2/B83WxZINdL9t1JYDPkFJBtfnY1otr_rhuPtjdvokiQkkGWsLCp_Zqu964C6w_mgDZQU2iGQOjhao1VZ3KIvOR58h.jpg?quality=95&as=32x46,48x70,72x104,108x157,160x232,240x348,360x522,480x696,540x783,601x871&from=bu&cs=601x0", cap:"о а это мы фотались в парке в чх" },
+        { src:"https://sun9-1.userapi.com/s/v1/ig2/PaDR0evHNrukz_1AzT4ysVDFgC6thYuOGSYD4ecf8a3P-EQggho2X4RamCyVxj86adg4LlGeOMyCWrJ6Lz0cXJZB.jpg?quality=95&as=32x43,48x64,72x96,108x144,160x213,240x320,360x480,480x640,540x720,640x853,720x960,960x1280&from=bu&cs=960x0", cap:"а тут мы просто красивые" },
+        { src:"https://sun9-36.userapi.com/s/v1/ig2/-0wSc4sWq7qmmost4zX8R1_osnn0WrA0AqorjT5laHh4mQlcEC4XRCRtWonwW6lgW4X4oFDyWN4LNCHPaiFbKSEu.jpg?quality=95&as=32x71,48x107,72x161,108x241,160x357,240x536,360x804,480x1072,540x1206,573x1280&from=bu&cs=573x0", cap:"а это мы в чз на плитах после пива" },
+        { src:"https://sun9-20.userapi.com/s/v1/ig2/51bQPNGOHlQjrvfpafTQGW-EmRAvz7DlLg4fPERgcsQLkPuLzND-MxK8lsdM6_CXi0MnCEoYfAG9ArGFq1RuQ6FN.jpg?quality=95&as=32x43,48x64,72x96,108x144,160x213,240x320,360x480,480x640,540x720,640x853,720x960,960x1280&from=bu&cs=960x0", cap:"а тут я впервые взял тебя наруки" },
+        { src:"https://sun9-59.userapi.com/s/v1/ig2/tYp27aFzMOx_CM_Kt-YBvH1oeSrh4nV32DNm_Gwxq7BkzYtjrkFnQ4qCEgV4Kq1m5D57-UHctdNsr07_xxtdVSaF.jpg?quality=95&as=32x43,48x64,72x96,108x144,160x214,240x320,360x480,480x641,540x721,640x854,720x961,959x1280&from=bu&cs=959x0", cap:"здесь мы в пд сидим в кварце" },
+        { src:"https://sun9-73.userapi.com/s/v1/ig2/ga4L152qMwPDhOub4dFuHnMHbFBqDW76BVTLmy0RtYdAZ9J4a4vAOe_wiUl5LTrpUsjZRkr_6hntf6xDSfUTAdZf.jpg?quality=95&as=32x24,48x36,72x54,108x81,160x120,240x180,360x270,480x360,540x405,640x480,720x540,1080x810,1280x960&from=bu&cs=1280x0", cap:"а это мы на мцд ты такая милашка" },
+        { src:"https://sun9-88.userapi.com/s/v1/ig2/iuto1PBI8nPG4O1SFSvt2QX44K88PKrngkgLYrJadDCr6E1v2AhOds2iCC41b6umTZ7def3FoI8_NBqoj6bCONDf.jpg?quality=95&as=32x46,48x69,72x104,108x156,160x230,240x346,360x519,480x691,540x778,640x922,665x958&from=bu&u=97ubBJuseMO_cpBu-AIE5FxQBcJR3Eh7mclvB8r4iVc&cs=665x0", cap:"ой как это сюда попало" },
+
+        
+        { src:"https://sun9-60.userapi.com/s/v1/ig2/Wy_0jI5q4g9kYfmtybKo4Mmfy8K-WvVRqJkQi5AomNGchEb4z86lYNnoB05IjuPRnpwBcwp9I8hzJ2yjxDiaj6cp.jpg?quality=95&as=32x43,48x64,72x96,108x144,160x213,240x320,360x480,480x640,540x720,640x853,720x960,1080x1440,1280x1707,1440x1920,1920x2560&from=bu&u=eTkoKB-aAkvWLrhbSET44R5ui5wRY7LFT4ca0IaKWOg&cs=1280x0", cap:"нюхаем ручки XD" },
+        { src:"https://sun9-34.userapi.com/s/v1/ig2/0KmCmC0OM4pqniTkhKq4Q2Sz7dN0Zep-taafXZqIscUhcI9Z9njzvLryuJGjXHziUO8byIXW53dK3wOrK1uo59_G.jpg?quality=95&as=32x43,48x64,72x96,108x144,160x213,240x320,360x480,480x640,540x720,640x853,720x960,1080x1440,1280x1707,1440x1920,1920x2560&from=bu&cs=1280x0", cap:"милахи" },
+        { src:"https://sun9-59.userapi.com/s/v1/ig2/1Yemp4Vusind9KxSG1QlCEOnNXpyJVmdDLLFy5WHGhNmHjONtkPj2Fk0vxkB0KUhCd5GgD1jzVEQTy6QsW7pVeOn.jpg?quality=95&as=32x43,48x64,72x96,108x144,160x213,240x320,360x480,480x640,540x720,640x853,720x960,1080x1440,1280x1707,1440x1920,1920x2560&from=bu&cs=1280x0", cap:"какая ты у меня спящая красавица" },
+        { src:"https://sun9-16.userapi.com/s/v1/ig2/Q603sk3gPzAiRCA9_LwJXBLgKzpsO0cwnKkIaYJii8Vm4PEV17R3j8CCi7yCjr4XB0nahDBCOaGqxfrLtfAzi8Iw.jpg?quality=95&as=32x24,48x36,72x54,108x81,160x120,240x180,360x270,480x360,540x405,640x480,720x540,1080x810,1280x960,1440x1080,2560x1920&from=bu&cs=1280x0", cap:"как же мило ты спишь зая" },
+        { src:"https://sun9-86.userapi.com/s/v1/ig2/bk7ldAHBngEKFBVAkGWvt_8-XuSDHc_degak-ZqJWkVPsVQC9E2hQLcw6BHmClcbE0fwscyoHE9gSOCrUahl2jJW.jpg?quality=95&as=32x43,48x64,72x96,108x144,160x213,240x320,360x480,480x640,540x720,640x853,720x960,1080x1440,1280x1707,1440x1920,1920x2560&from=bu&cs=1280x0", cap:"а это я рыжий" },
+        { src:"https://sun9-45.userapi.com/s/v1/ig2/1t5__lEB4lpuW7z9rd3BUW9Cnq0IVtyD2kWz5qsYe0YTlm0hcC2z1ml0mX12TB7jvEg2pcy7FNjPHFVdY82Kp0P2.jpg?quality=95&as=32x43,48x64,72x96,108x144,160x213,240x320,360x480,480x640,540x720,640x853,720x960,1080x1440,1280x1707,1440x1920,1920x2560&from=bu&cs=1280x0", cap:"милахаааааааааа" },
+      ];
+      let cur=0, autoInt;
+      const track = document.getElementById('carouselTrack');
+      const dotsDiv = document.getElementById('carouselDots');
+      function buildCarousel() {
+        track.innerHTML='';
+        slides.forEach((s,i)=>{
+          let div=document.createElement('div'); div.className='carousel-slide';
+          let img=document.createElement('img'); img.src=s.src; img.alt='moment';
+          let cap=document.createElement('div'); cap.className='slide-caption'; cap.innerText=s.cap;
+          div.appendChild(img); div.appendChild(cap); track.appendChild(div);
+        });
+        renderDots(); updateCarousel(); startAuto();
+      }
+      function updateCarousel() { track.style.transform=`translateX(-${cur*track.parentElement.clientWidth}px)`; updateDots(); }
+      function renderDots() { dotsDiv.innerHTML=''; slides.forEach((_,idx)=>{ let d=document.createElement('div'); d.classList.add('dot'); if(idx===cur) d.classList.add('active'); d.onclick=()=>{ stopAuto(); cur=idx; updateCarousel(); startAuto(); }; dotsDiv.appendChild(d); }); }
+      function updateDots() { let dots=document.querySelectorAll('.dot'); dots.forEach((d,i)=>{ if(i===cur) d.classList.add('active'); else d.classList.remove('active'); }); }
+      function next(){ cur=(cur+1)%slides.length; updateCarousel(); }
+      function prev(){ cur=(cur-1+slides.length)%slides.length; updateCarousel(); }
+      function startAuto(){ if(autoInt) clearInterval(autoInt); autoInt=setInterval(next,5000); }
+      function stopAuto(){ if(autoInt) clearInterval(autoInt); autoInt=null; }
+      document.getElementById('prevBtn').onclick=()=>{ stopAuto(); prev(); startAuto(); };
+      document.getElementById('nextBtn').onclick=()=>{ stopAuto(); next(); startAuto(); };
+      const carCon=document.querySelector('.carousel-container');
+      carCon.addEventListener('mouseenter',stopAuto); carCon.addEventListener('mouseleave',startAuto);
+      window.addEventListener('resize', updateCarousel);
+      buildCarousel();
+
+    // 2. Винил (цитаты)
+    const quotes = [ "Твоя улыбка — лучшая мелодия, которую я когда-либо слышал. 🎶",
+  "Наша любовь звучит громче любого неона в этом городе. 💜",
+  "Каждый день с тобой — новый хит, который не надоедает. 🔥",
+  "Ты — мой самый сладкий сон, ставший явью. 🌙",
+  "Вместе мы создаём симфонию счастья на двоих. ✨",
+  "Твой смех — это ритм, под который бьётся моё сердце. 💓",
+  "Я утонул в твоих глазах, как в океане тёплых звёзд. 🌟",
+  "С тобой даже серые дни превращаются в цветные сны. 🌈",
+  "Ты — моя муза, моё вдохновение и моя награда. 🎨",
+  "Наша история только начинается, а уже звучит как лучшая баллада. 📖",
+  "Лера, ты — та самая нота, которой не хватало в моей жизни. 🎵",
+  "Каждый поцелуй с тобой — как перемотка плёнки на самый сладкий трек. 💋",
+  "Твои ладони — маяки, которые ведут меня домой. 🏡",
+  "В твоих объятиях я забываю обо всём на свете. 🤗",
+  "Ты — мой личный космос, в котором хочется лететь вечно. 🚀",
+  "Твоё имя звучит для меня как самая нежная колыбельная. 💤",
+  "С тобой я чувствую себя героем собственного романтического фильма. 🎬",
+  "Твоя забота — это витамины для моей души. 💖",
+  "Я бесконечно благодарен судьбе за каждую минуту рядом с тобой. 🙏",
+  "Ты делаешь меня лучше, сильнее и счастливее. 💪😊",
+  "Наши отношения — это винил, который никогда не поцарапается. 🎚️",
+  "Лера, твой голос — самая красивая музыка в мире. 🎤",
+  "Каждый день я влюбляюсь в тебя заново. 🔄❤️",
+  "Ты — моя самая любимая ошибка, которую я не исправлю никогда. 🥰",
+  "С тобой даже молчание звучит как признание. 🤫💖",
+  "Твоя нежность согревает меня даже в самую холодную ночь. 🔥",
+  "Я хочу слушать эту пластинку наших чувств до самого конца жизни. ♾️",
+  "Ты — мой пароль от счастья, который я запомнил навсегда. 🔐",
+  "С тобой я забыл, что такое одиночество. 🫂",
+  "Твои глаза — это два созвездия, в которых я хочу заблудиться. ✨👀",
+  "Мы с тобой как две половинки одного пазла, которые наконец-то сложились. 🧩",
+  "Ты — моя личная весна даже посреди зимы. 🌸",
+  "Твоя улыбка заряжает меня энергией на весь день. 🔋😁",
+  "Я люблю тебя не за что-то, а просто потому что ты есть. 💯",
+  "Ты — моя самая красивая реальность, которую я не хочу покидать. 🌍",
+  "С тобой каждый день — это 14 февраля. 🗓️❤️",
+  "Ты — моя любимая песня, которую я слушаю на репите. 🔁",
+  "Твоя душа — самая чистая и светлая, что я встречал. 🌟",
+  "Я готов идти за тобой хоть на край света. 🌏",
+  "Ты — моё личное солнце, которое всегда светит мне. ☀️",
+  "Твои поцелуи — как глоток свежего воздуха в душном городе. 💨💋",
+  "Мы с тобой пишем свою собственную историю любви, страницу за страницей. 📚",
+  "Ты — моя любимая мелодия, которая звучит у меня в голове 24/7. 🎧",
+  "Твоя поддержка — это мой самый надёжный тыл. 🛡️",
+  "Я хочу состариться с тобой, слушая этот винил наших чувств. 👵🏻👴🏻",
+  "Ты — моя самая большая удача в этой жизни. 🍀",
+  "Твои щёчки — самые целуемые в мире. 😘",
+  "С тобой я понял, что такое настоящая любовь с первого взгляда. 👀💘",
+  "Ты — моя личная вселенная, которую я буду исследовать вечно. 🪐",
+  "Я люблю тебя больше, чем все звёзды на небе. 🌌💕"];
+    const vinylQuote = document.getElementById('vinylQuote');
+    document.getElementById('vinylDisc').onclick = (e) => {
+      let newQ = quotes[Math.floor(Math.random()*quotes.length)];
+      vinylQuote.style.opacity='0'; setTimeout(()=>{ vinylQuote.innerText = newQ; vinylQuote.style.opacity='1'; },150);
+      createHeart(e.clientX, e.clientY);
+    };
+
+    // 3. Стихи
+    const poems = [
+      "Ты — свет в моём космосе,\nНеоновая мечта.\nКаждый день с тобой —\nНовая глава счастья.",
+      "Я утонул в твоих глазах,\nКак в океане тёплых звёзд.\nТы мой рассвет и мой покой,\nМой самый яркий, смелый сон.",
+      "Твои ладони — маяки,\nВедут сквозь серые шторма.\nС тобою мысли легки,\nТы в моём сердце навсегда.",
+      "Ты — свет в моём космосе,\nНеоновая мечта.\nКаждый день с тобой —\nНовая глава счастья.",
+  "Я утонул в твоих глазах,\nКак в океане тёплых звёзд.\nТы мой рассвет и мой покой,\nМой самый яркий, смелый сон.",
+  "Твои ладони — маяки,\nВедут сквозь серые шторма.\nС тобою мысли легки,\nТы в моём сердце навсегда.",
+  "Лера, ты — моя вселенная,\nГде нет границ и нет конца.\nС тобой я чувствую, поверь,\nЧто я живу, а не существую теперь.",
+  "Твоя улыбка — как рассвет,\nТвой взгляд — как звёздный тёплый свет.\nС тобою каждый миг чудесен,\nТы — лучший в мире, самый нежный подарок небес.",
+  "Мы пишем историю вдвоём,\nЛистая дни, как нежный том.\nТы — каждая строчка, каждый аккорд,\nС тобою мой мир необъятен и горд.",
+  "Ты — мелодия в тишине,\nСвет, что не гаснет во мне.\nКаждый вдох твоим именем полн,\nС тобой я забыл, что такое уныние и боль.",
+  "Твои руки — моя гавань,\nТвои губы — моя награда.\nС тобой я нашёл ту самую правду,\nЧто любовь — это всё, что мне надо.",
+  "Облака плывут не спеша,\nВ моём сердце играет душа.\nЭто ты, Лера, внутри меня,\nСветом неоновым тихо звеня.",
+  "С тобою время летит стрелой,\nСекунды тают, но я с тобой.\nТы — мой космос, мой вечный полёт,\nСчастье, которое не уйдёт.",
+  "Я буду помнить каждый взгляд,\nКаждый твой смех, каждый наряд.\nТы — лучшее, что со мной случилось,\nС тобой моё сердце ожило и влюбилось.",
+  "Ты — как звезда в ночи безлунной,\nКак лучик света в шторме шумном.\nС тобою я сильней в сто раз,\nТы — мой алмаз, ты — мой алмаз.",
+  "Скажи, откуда ты взялась,\nТакая нежная и смелая?\nВ моей душе ты началась\nИ стала самою умелою\nЛюбить и верить, и ждать,\nИ никогда не уставать.",
+  "Мы зажгли с тобой неон\nПосреди холодных стен.\nТы — мой свет, мой самый сладкий плен,\nТы — мой дом и вечный клуб влюблённых систем.",
+  "Ты — мой код, который взломал систему,\nСердце перепрограммировал в нежность.\nКаждый день с тобой — апдейт,\nЯ люблю тебя, как вечную безбрежность.",
+  "Нам не нужны слова порою,\nТвой взгляд расскажет всё с тобою.\nТы — тихий океан спокойствия,\nТы — моё личное устройство счастья.",
+  "Лера, я хочу шептать тебе\nНа ухо самые нежные строчки.\nТы — та самая, на всей земле,\nМои стихи — для тебя одной, точка.",
+  "Ты — не просто девушка моя,\nТы — вселенная, где кружится земля.\nВ твоих глазах я вижу свой рассвет,\nС тобою мне не нужно других планет.",
+  "Пусть проходят дни и месяцы,\nНаша любовь только крепнет, поверь.\nТы — моё всё, моя Лера,\nТы — открытая в счастье дверь.",
+  "Я бы строчки эти написал\nНеоном на ночном небе.\nЧтобы ты проснулась и узнала:\nТы — то, ради чего я живу на свете."
+    ];
+    const poemDiv = document.getElementById('poemText');
+    document.getElementById('newPoemBtn').onclick = () => {
+      let p = poems[Math.floor(Math.random()*poems.length)];
+      poemDiv.style.opacity='0'; setTimeout(()=>{ poemDiv.innerText = p; poemDiv.style.opacity='1'; },150);
+    };
+
+    // 4. Оракул
+    const oracleMsgs = ["🌹 Твоя улыбка — звезда моей вселенной", "💕 Сегодня тебя ждёт нежный сюрприз", "✨ Илья любит тебя бесконечно", "🌸 Следующие 30 дней будут волшебными", "💖 Твои глаза — магия"];
+    const oracleDiv = document.getElementById('oracleMessage');
+    document.getElementById('oracleBlock').onclick = (e) => {
+      let msg = oracleMsgs[Math.floor(Math.random()*oracleMsgs.length)];
+      oracleDiv.style.opacity='0'; setTimeout(()=>{ oracleDiv.innerText = msg; oracleDiv.style.opacity='1'; },150);
+      createHeart(e.clientX, e.clientY);
+    };
+
+    // 5. 1000+ причин (динамическая генерация)
+    const reasonsBase = ["Твоя улыбка", "Твои глаза", "Твой смех", "Твоя нежность", "Твоя доброта", "Твоя забота", "Твой голос", "Твои объятия", "Твоя магия", "Ты вдохновляешь"];
+    let allReasons = [];
+    for(let i=0;i<500;i++) { allReasons.push(`${reasonsBase[i%reasonsBase.length]} 💖 (${i+1})`); }
+    let visibleCount = 50;
+    const grid = document.getElementById('reasonsGrid');
+    function renderReasons() {
+      grid.innerHTML = '';
+      for(let i=0;i<Math.min(visibleCount, allReasons.length);i++) {
+        let div = document.createElement('div'); div.className = 'card-reason'; div.innerHTML = `❤️ ${allReasons[i]}`;
+        grid.appendChild(div);
+      }
+    }
+    renderReasons();
+    document.getElementById('loadMoreBtn').onclick = () => {
+      visibleCount += 50;
+      if(visibleCount > allReasons.length) visibleCount = allReasons.length;
+      renderReasons();
+      for(let i=0;i<15;i++) createHeart(Math.random()*window.innerWidth, Math.random()*window.innerHeight);
+    };
+
+    // 6. Частицы (canvas)
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    let parts=[], w,h;
+    function initParts() {
+      parts=[]; let count=180;
+      for(let i=0;i<count;i++) {
+        let type = Math.random()>0.7?'heart':'star';
+        let size=type==='heart'?Math.random()*12+10:Math.random()*3+1.5;
+        parts.push({
+          x:Math.random()*w, y:Math.random()*h, size, vx:(Math.random()-0.5)*0.3, vy:(Math.random()-0.5)*0.2,
+          color: type==='heart'?`hsl(${Math.random()*30+320},80%,65%)`:`#ff99dd`, type, alpha:Math.random()*0.5+0.3
+        });
+      }
+    }
+    function resizeCanvas() { w=innerWidth; h=innerHeight; canvas.width=w; canvas.height=h; initParts(); }
+    function drawParticles() {
+      if(!ctx) return;
+      ctx.clearRect(0,0,w,h);
+      ctx.fillStyle='#0b0b2a'; ctx.fillRect(0,0,w,h);
+      for(let p of parts) {
+        if(p.type==='heart') {
+          ctx.font=`${p.size}px "Segoe UI"`; ctx.fillStyle=p.color; ctx.shadowBlur=8; ctx.shadowColor='#ff66cc';
+          ctx.globalAlpha=p.alpha; ctx.fillText('❤️', p.x, p.y);
+        } else {
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.size*0.7, 0, Math.PI*2);
+          ctx.fillStyle=p.color; ctx.shadowBlur=5; ctx.fill();
+        }
+        p.x+=p.vx; p.y+=p.vy;
+        if(p.x<0) p.x=w; if(p.x>w) p.x=0; if(p.y<0) p.y=h; if(p.y>h) p.y=0;
+      }
+      requestAnimationFrame(drawParticles);
+    }
+    window.addEventListener('resize', ()=>{ resizeCanvas(); initParts(); });
+    resizeCanvas(); drawParticles();
+
+    // 7. Параллакс сетка
+    const gridParallax = document.getElementById('parallaxGrid');
+    let mx=0,my=0,tx=0,ty=0;
+    document.addEventListener('mousemove',(e)=>{ mx=(e.clientX/innerWidth-0.5)*30; my=(e.clientY/innerHeight-0.5)*20; });
+    function animParallax(){ tx+=(mx-tx)*0.1; ty+=(my-ty)*0.1; if(gridParallax) gridParallax.style.transform=`translate(${tx}px,${ty}px)`; requestAnimationFrame(animParallax); }
+    animParallax();
+
+    // 8. Кастомный курсор
+    const cursor = document.getElementById('customCursor');
+    document.addEventListener('mousemove',(e)=>{ cursor.style.left=e.clientX+'px'; cursor.style.top=e.clientY+'px'; });
+    document.querySelectorAll('button, .carousel-btn, .dot, .vinyl-disc, .oracle-block, .secret-btn, .load-more, #newPoemBtn, .set-date-btn').forEach(el=>{
+      el.addEventListener('mouseenter',()=>cursor.classList.add('hover-effect'));
+      el.addEventListener('mouseleave',()=>cursor.classList.remove('hover-effect'));
+    });
+
+    // 9. Сердечки при клике
+    function createHeart(x,y) {
+      let d=document.createElement('div'); d.className='floating-heart';
+      d.innerHTML=['❤️','💖','💗','💓'][Math.floor(Math.random()*4)];
+      d.style.left=x-15+'px'; d.style.top=y-15+'px';
+      document.body.appendChild(d); setTimeout(()=>d.remove(),1500);
+    }
+    document.body.addEventListener('click',(e)=>{
+      if(e.target.closest('.secret-btn')||e.target.closest('.close-modal')||e.target.closest('.set-date-btn')||e.target.closest('.load-more')||e.target.closest('#newPoemBtn')) return;
+      createHeart(e.clientX, e.clientY);
+    });
+    document.body.addEventListener('dblclick',(e)=>{ for(let i=0;i<25;i++) setTimeout(()=>createHeart(e.clientX+(Math.random()-0.5)*80,e.clientY+(Math.random()-0.5)*80), i*15); });
+
+    // 10. Модалка секрета
+    const modal = document.getElementById('modal');
+    document.getElementById('secretButton').onclick = () => modal.style.display='flex';
+    document.querySelector('.close-modal').onclick = () => modal.style.display='none';
+    modal.onclick = (e) => { if(e.target===modal) modal.style.display='none'; };
+  })();
+</script>
+</body>
+</html>
+```
